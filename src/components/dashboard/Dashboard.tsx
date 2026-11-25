@@ -459,15 +459,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0">
+                  <div className="text-right shrink-0 min-w-[75px]">
                     <span
-                      className={`font-bold text-xs ${
+                      className={`font-bold font-mono text-xs whitespace-nowrap ${
                         isStockIn ? 'text-emerald-400' : 'text-slate-200'
                       }`}
                     >
-                      {isStockIn ? `+${tx.quantity}` : `-${tx.quantity}`} units
+                      {isStockIn ? `+${tx.quantity}` : `-${tx.quantity}`} {tx.quantity === 1 ? 'unit' : 'units'}
                     </span>
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                    <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold whitespace-nowrap">
                       {tx.type}
                     </div>
                   </div>

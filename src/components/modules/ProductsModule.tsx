@@ -201,22 +201,22 @@ export const ProductsModule: React.FC = () => {
     switch (status) {
       case 'IN_STOCK':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            <CheckCircle2 className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+            <CheckCircle2 className="w-3 h-3 shrink-0" />
             <span>In Stock ({stock})</span>
           </span>
         );
       case 'LOW_STOCK':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30">
-            <AlertTriangle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 whitespace-nowrap">
+            <AlertTriangle className="w-3 h-3 shrink-0" />
             <span>Low Stock ({stock})</span>
           </span>
         );
       case 'OUT_OF_STOCK':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-            <XCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 whitespace-nowrap">
+            <XCircle className="w-3 h-3 shrink-0" />
             <span>Out of Stock (0)</span>
           </span>
         );
@@ -352,9 +352,9 @@ export const ProductsModule: React.FC = () => {
                     <td className="py-3.5 px-4">
                       <div className="font-bold text-white text-sm tracking-tight">{prod.name}</div>
                       <div className="flex items-center gap-2 mt-0.5 text-slate-400">
-                        <span className="font-mono text-indigo-300 text-[11px]">{prod.sku}</span>
+                        <span className="font-mono text-indigo-300 text-[11px] whitespace-nowrap">{prod.sku}</span>
                         <span>•</span>
-                        <span className="text-slate-400">{prod.supplierName}</span>
+                        <span className="text-slate-400 truncate">{prod.supplierName}</span>
                       </div>
                     </td>
 
@@ -484,10 +484,10 @@ export const ProductsModule: React.FC = () => {
               <select
                 value={formData.categoryId}
                 onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900"
+                className="w-full h-9 px-3 py-1.5 rounded-xl glass-input text-xs text-white bg-slate-900 truncate"
               >
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option key={c.id} value={c.id} className="truncate">
                     {c.name}
                   </option>
                 ))}
@@ -499,10 +499,10 @@ export const ProductsModule: React.FC = () => {
               <select
                 value={formData.supplierId}
                 onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900"
+                className="w-full h-9 px-3 py-1.5 rounded-xl glass-input text-xs text-white bg-slate-900 truncate"
               >
                 {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>
+                  <option key={s.id} value={s.id} className="truncate">
                     {s.name} ({s.company})
                   </option>
                 ))}

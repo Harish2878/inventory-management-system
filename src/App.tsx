@@ -24,13 +24,12 @@ import {
   FileText,
   Receipt,
   Eye,
-  Layers,
-  Sparkles,
 } from 'lucide-react';
 
 const MainLayout: React.FC = () => {
   const { currentUser, activeTab, setActiveTab, permissions } = useInventory();
   const [isQuickActionOpen, setIsQuickActionOpen] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   if (!currentUser) {
     return <LoginScreen />;
@@ -64,22 +63,28 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-[#070b14] text-slate-100 flex relative font-sans">
       {/* Ambient background glows */}
-      <div className="fixed top-0 left-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none animate-pulse-slow" />
-      <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
-      <div className="fixed top-1/2 right-10 w-[400px] h-[400px] bg-emerald-600/10 rounded-full blur-[160px] pointer-events-none" />
+      <div className="fixed top-0 left-1/4 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[140px] pointer-events-none animate-pulse-slow" />
+      <div className="fixed bottom-0 right-1/4 w-[450px] h-[450px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse-slow" />
+      <div className="fixed top-1/2 right-10 w-[350px] h-[350px] bg-emerald-600/10 rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Modern Glassmorphic Sidebar */}
-      <Sidebar />
+      {/* Modern Glassmorphic Sidebar (Desktop Sticky + Mobile Drawer) */}
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
 
       {/* Main Content Column */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen z-10">
-        <Navbar onOpenQuickAction={() => setIsQuickActionOpen(true)} />
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen w-full">
+        <Navbar
+          onOpenQuickAction={() => setIsQuickActionOpen(true)}
+          onToggleSidebar={() => setMobileSidebarOpen(true)}
+        />
 
         {/* Read-Only Notice for Viewer Persona */}
         {currentUser.role === 'viewer' && (
-          <div className="bg-amber-500/10 border-b border-amber-500/30 px-8 py-2.5 flex items-center justify-between text-xs text-amber-300">
+          <div className="bg-amber-500/10 border-b border-amber-500/30 px-4 sm:px-8 py-2.5 flex items-center justify-between text-xs text-amber-300">
             <div className="flex items-center gap-2">
               <Eye className="w-4 h-4 text-amber-400 shrink-0" />
               <span>
@@ -88,7 +93,7 @@ const MainLayout: React.FC = () => {
             </div>
             <button
               onClick={() => setActiveTab('settings')}
-              className="text-amber-200 underline font-semibold hover:text-white"
+              className="text-amber-200 underline font-semibold hover:text-white shrink-0 ml-2"
             >
               Switch Role
             </button>
@@ -96,7 +101,7 @@ const MainLayout: React.FC = () => {
         )}
 
         {/* Scrollable View Area */}
-        <main className="flex-1 p-6 sm:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
           {renderActiveModule()}
         </main>
       </div>

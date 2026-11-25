@@ -107,36 +107,36 @@ export const StockModule: React.FC<StockModuleProps> = ({ initialProductId }) =>
     switch (type) {
       case 'IN':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            <ArrowDownRight className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 whitespace-nowrap">
+            <ArrowDownRight className="w-3 h-3 shrink-0" />
             <span>STOCK IN</span>
           </span>
         );
       case 'OUT':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
-            <ArrowUpRight className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 whitespace-nowrap">
+            <ArrowUpRight className="w-3 h-3 shrink-0" />
             <span>STOCK OUT</span>
           </span>
         );
       case 'ADJUST':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30">
-            <RotateCcw className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 whitespace-nowrap">
+            <RotateCcw className="w-3 h-3 shrink-0" />
             <span>ADJUSTMENT</span>
           </span>
         );
       case 'RETURN':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30">
-            <RotateCcw className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/30 whitespace-nowrap">
+            <RotateCcw className="w-3 h-3 shrink-0" />
             <span>RETURN</span>
           </span>
         );
       case 'DAMAGE':
         return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-            <ShieldAlert className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/30 whitespace-nowrap">
+            <ShieldAlert className="w-3 h-3 shrink-0" />
             <span>DAMAGE / LOSS</span>
           </span>
         );
@@ -264,8 +264,8 @@ export const StockModule: React.FC<StockModuleProps> = ({ initialProductId }) =>
                       <td className="py-3.5 px-4">{getTypeBadge(tx.type)}</td>
 
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-white text-xs">{tx.productName}</div>
-                        <div className="font-mono text-[10px] text-indigo-300">{tx.sku}</div>
+                        <div className="font-bold text-white text-xs truncate max-w-xs">{tx.productName}</div>
+                        <div className="font-mono text-[10px] text-indigo-300 whitespace-nowrap">{tx.sku}</div>
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-mono font-bold">
@@ -279,8 +279,8 @@ export const StockModule: React.FC<StockModuleProps> = ({ initialProductId }) =>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="font-mono text-slate-300 font-semibold">{tx.reference}</div>
-                        <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <div className="font-mono text-slate-300 font-semibold whitespace-nowrap">{tx.reference}</div>
+                        <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 whitespace-nowrap">
                           <User className="w-3 h-3" />
                           <span>{tx.operatorName}</span>
                         </div>

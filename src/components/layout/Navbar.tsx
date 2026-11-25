@@ -11,14 +11,16 @@ import {
   Sparkles,
   RefreshCw,
   Plus,
+  Menu,
 } from 'lucide-react';
 import { Role } from '../../types';
 
 interface NavbarProps {
   onOpenQuickAction: () => void;
+  onToggleSidebar?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction, onToggleSidebar }) => {
   const {
     currentUser,
     logout,
@@ -69,22 +71,32 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
   const roleStyle = roleColors[currentRole];
 
   return (
-    <header className="sticky top-0 z-30 h-20 w-full glass-panel border-b border-white/10 px-6 sm:px-8 flex items-center justify-between transition-all">
-      {/* Left: Search Bar */}
-      <div className="flex items-center gap-4 flex-1 max-w-xl">
-        <div className="relative w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+    <header className="sticky top-0 z-30 h-18 sm:h-20 w-full glass-panel border-b border-white/10 px-4 sm:px-8 flex items-center justify-between transition-all">
+      {/* Left: Hamburger (Mobile) + Search Bar */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-xl min-w-0 mr-2">
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            className="p-2 rounded-xl glass-panel-subtle hover:bg-white/10 lg:hidden text-slate-300 shrink-0"
+            aria-label="Open navigation menu"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
+
+        <div className="relative w-full min-w-0">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 shrink-0" />
           <input
             type="text"
-            placeholder="Search SKU, product, supplier, or invoice..."
+            placeholder="Search SKU, product, supplier..."
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="w-full pl-10 pr-12 py-2.5 rounded-xl glass-input text-sm text-slate-100 placeholder:text-slate-500 border border-white/10 focus:border-indigo-500/60 transition-all shadow-inner"
+            className="w-full pl-9 sm:pl-10 pr-10 py-2 sm:py-2.5 rounded-xl glass-input text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 border border-white/10 focus:border-indigo-500/60 transition-all shadow-inner truncate"
           />
           {globalSearch && (
             <button
               onClick={() => setGlobalSearch('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
             >
               Clear
             </button>
@@ -93,11 +105,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3 sm:gap-4 ml-4">
+      <div className="flex items-center gap-2 sm:gap-3.5 shrink-0">
         {/* Quick Action Button */}
         <button
           onClick={onOpenQuickAction}
-          className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl glass-button-primary text-xs sm:text-sm font-semibold text-white tracking-wide shadow-lg"
+          className="hidden md:flex items-center gap-1.5 px-3.5 py-2 rounded-xl glass-button-primary text-xs font-semibold text-white tracking-wide shadow-lg whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>New Action</span>
@@ -107,16 +119,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
         <div className="relative">
           <button
             onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border ${roleStyle.badge} hover:bg-white/5 transition-all text-xs font-semibold uppercase tracking-wider ${roleStyle.glow}`}
-            title="Click to switch user role testing mode"
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border ${roleStyle.badge} hover:bg-white/5 transition-all text-[11px] sm:text-xs font-semibold uppercase tracking-wider ${roleStyle.glow} whitespace-nowrap`}
+            title="Click to switch role profile"
           >
-            <Shield className="w-3.5 h-3.5" />
+            <Shield className="w-3.5 h-3.5 shrink-0" />
             <span>{currentRole}</span>
-            <ChevronDown className="w-3 h-3 opacity-60" />
+            <ChevronDown className="w-3 h-3 opacity-60 shrink-0" />
           </button>
 
           {showRoleDropdown && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl glass-modal p-2 shadow-2xl border border-white/10 z-50 animate-in fade-in zoom-in-95">
+            <div className="absolute right-0 mt-2 w-52 sm:w-56 rounded-2xl glass-modal p-2 shadow-2xl border border-white/10 z-50 animate-in fade-in zoom-in-95">
               <div className="px-3 py-2 border-b border-white/10 text-xs font-medium text-slate-400">
                 Switch Role Profile
               </div>
@@ -158,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
         <div className="relative">
           <button
             onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-            className="relative p-2.5 rounded-xl glass-panel-subtle hover:bg-white/10 text-slate-300 hover:text-white transition-all"
+            className="relative p-2 rounded-xl glass-panel-subtle hover:bg-white/10 text-slate-300 hover:text-white transition-all"
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -170,7 +182,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
           </button>
 
           {showNotifDropdown && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl glass-modal p-4 shadow-2xl border border-white/10 z-50">
+            <div className="absolute right-0 mt-2 w-72 sm:w-88 rounded-2xl glass-modal p-4 shadow-2xl border border-white/10 z-50">
               <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold text-white">System Alerts</h4>
@@ -186,12 +198,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
                     className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
                   >
                     <CheckCheck className="w-3.5 h-3.5" />
-                    <span>Mark all read</span>
+                    <span>Mark read</span>
                   </button>
                 )}
               </div>
 
-              <div className="max-h-72 overflow-y-auto space-y-2 pr-1">
+              <div className="max-h-64 overflow-y-auto space-y-2 pr-1">
                 {notifications.length === 0 ? (
                   <p className="text-xs text-slate-400 text-center py-6">No recent notifications</p>
                 ) : (
@@ -210,10 +222,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
                       } hover:bg-white/10`}
                     >
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-semibold text-slate-200">{item.title}</span>
-                        <span className="text-[10px] text-slate-500">{item.timestamp}</span>
+                        <span className="font-semibold text-slate-200 truncate pr-2">{item.title}</span>
+                        <span className="text-[10px] text-slate-500 shrink-0">{item.timestamp}</span>
                       </div>
-                      <p className="text-slate-300 text-[11px] leading-relaxed">{item.message}</p>
+                      <p className="text-slate-300 text-[11px] leading-relaxed line-clamp-2">{item.message}</p>
                     </div>
                   ))
                 )}
@@ -238,28 +250,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction }) => {
         <div className="relative">
           <button
             onClick={() => setShowUserDropdown(!showUserDropdown)}
-            className="flex items-center gap-3 p-1.5 sm:px-3 rounded-2xl glass-panel-subtle hover:bg-white/10 transition-all border border-white/10"
+            className="flex items-center gap-2 sm:gap-2.5 p-1 sm:px-2.5 rounded-2xl glass-panel-subtle hover:bg-white/10 transition-all border border-white/10"
           >
             <img
               src={currentUser?.avatar}
               alt={currentUser?.name}
-              className="w-8 h-8 rounded-xl object-cover ring-2 ring-indigo-500/40"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl object-cover ring-2 ring-indigo-500/40 shrink-0"
             />
-            <div className="hidden md:block text-left">
-              <div className="text-xs font-bold text-white tracking-tight">{currentUser?.name}</div>
-              <div className="text-[10px] text-slate-400 capitalize">{currentUser?.department}</div>
+            <div className="hidden xl:block text-left max-w-[120px]">
+              <div className="text-xs font-bold text-white tracking-tight truncate">{currentUser?.name}</div>
+              <div className="text-[10px] text-slate-400 capitalize truncate">{currentUser?.department}</div>
             </div>
-            <ChevronDown className="hidden md:block w-3.5 h-3.5 text-slate-400" />
+            <ChevronDown className="hidden xl:block w-3 h-3 text-slate-400 shrink-0" />
           </button>
 
           {showUserDropdown && (
-            <div className="absolute right-0 mt-2 w-64 rounded-2xl glass-modal p-3 shadow-2xl border border-white/10 z-50">
+            <div className="absolute right-0 mt-2 w-60 sm:w-64 rounded-2xl glass-modal p-3 shadow-2xl border border-white/10 z-50">
               <div className="p-3 border-b border-white/10 mb-2">
-                <div className="font-bold text-sm text-white">{currentUser?.name}</div>
-                <div className="text-xs text-slate-400">{currentUser?.email}</div>
+                <div className="font-bold text-sm text-white truncate">{currentUser?.name}</div>
+                <div className="text-xs text-slate-400 truncate">{currentUser?.email}</div>
                 <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider border border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
                   <Sparkles className="w-3 h-3 text-indigo-400" />
-                  <span>{currentUser?.title}</span>
+                  <span className="truncate">{currentUser?.title}</span>
                 </div>
               </div>
 

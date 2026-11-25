@@ -551,7 +551,7 @@ export const BillingModule: React.FC = () => {
 
               <div className="sm:text-right">
                 <span className="font-bold text-slate-400 uppercase tracking-wider block mb-1">Payment Remittance:</span>
-                <div className="text-slate-300">Method: <span className="font-bold text-white uppercase">{activeInvoice.paymentMethod}</span></div>
+                <div className="text-slate-300">Method: <span className="font-bold text-white uppercase">{activeInvoice.paymentMethod.replace(/_/g, ' ')}</span></div>
                 <div className="text-slate-300">Due Date: <span className="font-bold text-white">{new Date(activeInvoice.dueDate).toLocaleDateString()}</span></div>
                 <div className="text-slate-400 mt-1">Wire Routing: 021000021 / Acc: 9482-1092-44</div>
               </div>
