@@ -31,7 +31,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction, onToggleSideb
     globalSearch,
     setGlobalSearch,
     setActiveTab,
-    resetDemoData,
+    clearAllData,
   } = useInventory();
 
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
@@ -289,13 +289,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQuickAction, onToggleSideb
 
                 <button
                   onClick={() => {
-                    resetDemoData();
+                    clearAllData();
                     setShowUserDropdown(false);
                   }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-white/5 hover:text-white transition-all text-left"
                 >
                   <RefreshCw className="w-4 h-4 text-amber-400" />
-                  <span>Restore Demo Seed Data</span>
+                  <span>Clear All Data</span>
                 </button>
 
                 <button

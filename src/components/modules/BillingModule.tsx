@@ -181,7 +181,16 @@ export const BillingModule: React.FC = () => {
 
         {permissions.canGenerateInvoices && (
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              setInvoiceItems([
+                {
+                  productId: products[0]?.id || '',
+                  quantity: 1,
+                  unitPrice: products[0]?.unitPrice || 100,
+                },
+              ]);
+              setIsCreateModalOpen(true);
+            }}
             className="px-4 py-2 rounded-xl glass-button-primary text-xs font-semibold text-white flex items-center gap-2 shadow-lg"
           >
             <Plus className="w-4 h-4" />
@@ -207,7 +216,14 @@ export const BillingModule: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-200">
-              {invoices.map((inv) => (
+              {invoices.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-12 text-slate-400">
+                    No customer invoices generated yet.
+                  </td>
+                </tr>
+              ) : (
+                invoices.map((inv) => (
                 <tr key={inv.id} className="hover:bg-white/[0.03] transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-mono font-bold text-white text-xs">{inv.invoiceNumber}</div>
@@ -256,7 +272,8 @@ export const BillingModule: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -351,13 +368,18 @@ export const BillingModule: React.FC = () => {
                       <select
                         value={item.productId}
                         onChange={(e) => updateLineItem(index, { productId: e.target.value })}
+                        required
                         className="w-full px-2 py-1.5 rounded-lg glass-input text-xs text-white bg-slate-900"
                       >
-                        {products.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} ({p.sku})
-                          </option>
-                        ))}
+                        {products.length === 0 ? (
+                          <option value="">Add products first</option>
+                        ) : (
+                          products.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.sku})
+                            </option>
+                          ))
+                        )}
                       </select>
                     </div>
 

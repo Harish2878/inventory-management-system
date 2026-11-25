@@ -136,8 +136,15 @@ export const CategoriesModule: React.FC = () => {
       </div>
 
       {/* Categories Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((cat) => {
+      {categories.length === 0 ? (
+        <div className="p-12 text-center rounded-3xl glass-card border border-white/10 text-slate-400">
+          <Layers className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-300">No categories created yet</p>
+          <p className="text-xs text-slate-500 mt-1">Create a category to classify your inventory products.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((cat) => {
           // Dynamic calculation of count & valuation from products
           const catProducts = products.filter((p) => p.categoryId === cat.id);
           const itemCount = catProducts.length;
@@ -209,7 +216,8 @@ export const CategoriesModule: React.FC = () => {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {/* Add Category Modal */}
       <Modal

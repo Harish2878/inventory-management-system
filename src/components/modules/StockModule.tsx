@@ -327,13 +327,18 @@ export const StockModule: React.FC<StockModuleProps> = ({ initialProductId }) =>
             <select
               value={formData.productId}
               onChange={(e) => setFormData({ ...formData, productId: e.target.value })}
+              required
               className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900"
             >
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} ({p.sku}) — Current: {p.stock} units
-                </option>
-              ))}
+              {products.length === 0 ? (
+                <option value="">No products available — add products first</option>
+              ) : (
+                products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} ({p.sku}) — Current: {p.stock} units
+                  </option>
+                ))
+              )}
             </select>
           </div>
 

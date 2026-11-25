@@ -162,7 +162,17 @@ export const PurchasesModule: React.FC = () => {
 
         {permissions.canManagePurchaseOrders && (
           <button
-            onClick={() => setIsCreateModalOpen(true)}
+            onClick={() => {
+              setSelectedSupplierId(suppliers[0]?.id || '');
+              setPoItems([
+                {
+                  productId: products[0]?.id || '',
+                  quantity: 5,
+                  unitCost: products[0]?.costPrice || 100,
+                },
+              ]);
+              setIsCreateModalOpen(true);
+            }}
             className="px-4 py-2 rounded-xl glass-button-primary text-xs font-semibold text-white flex items-center gap-2 shadow-lg"
           >
             <Plus className="w-4 h-4" />
@@ -188,7 +198,14 @@ export const PurchasesModule: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-slate-200">
-              {purchaseOrders.map((po) => (
+              {purchaseOrders.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="text-center py-12 text-slate-400">
+                    No purchase orders issued yet.
+                  </td>
+                </tr>
+              ) : (
+                purchaseOrders.map((po) => (
                 <tr key={po.id} className="hover:bg-white/[0.03] transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="font-mono font-bold text-white text-xs">{po.poNumber}</div>
@@ -254,7 +271,8 @@ export const PurchasesModule: React.FC = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -275,13 +293,18 @@ export const PurchasesModule: React.FC = () => {
               <select
                 value={selectedSupplierId}
                 onChange={(e) => setSelectedSupplierId(e.target.value)}
+                required
                 className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900"
               >
-                {suppliers.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.name} ({s.company})
-                  </option>
-                ))}
+                {suppliers.length === 0 ? (
+                  <option value="">No suppliers available — register a supplier first</option>
+                ) : (
+                  suppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name} ({s.company})
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 
@@ -335,13 +358,18 @@ export const PurchasesModule: React.FC = () => {
                     <select
                       value={item.productId}
                       onChange={(e) => updateLineItem(index, { productId: e.target.value })}
+                      required
                       className="w-full px-2 py-1.5 rounded-lg glass-input text-xs text-white bg-slate-900"
                     >
-                      {products.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name} ({p.sku})
-                        </option>
-                      ))}
+                      {products.length === 0 ? (
+                        <option value="">Add products first</option>
+                      ) : (
+                        products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} ({p.sku})
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
 

@@ -143,22 +143,30 @@ export const ReportsModule: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-slate-200">
-                {categories.map((c) => {
-                  const prods = products.filter((p) => p.categoryId === c.id);
-                  const cost = prods.reduce((acc, p) => acc + p.stock * p.costPrice, 0);
-                  const retail = prods.reduce((acc, p) => acc + p.stock * p.unitPrice, 0);
-                  const units = prods.reduce((acc, p) => acc + p.stock, 0);
+                {categories.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-slate-400">
+                      No categories recorded yet.
+                    </td>
+                  </tr>
+                ) : (
+                  categories.map((c) => {
+                    const prods = products.filter((p) => p.categoryId === c.id);
+                    const cost = prods.reduce((acc, p) => acc + p.stock * p.costPrice, 0);
+                    const retail = prods.reduce((acc, p) => acc + p.stock * p.unitPrice, 0);
+                    const units = prods.reduce((acc, p) => acc + p.stock, 0);
 
-                  return (
-                    <tr key={c.id} className="hover:bg-white/[0.03]">
-                      <td className="py-3 px-4 font-bold text-white">{c.name}</td>
-                      <td className="py-3 px-4 text-center font-mono">{prods.length}</td>
-                      <td className="py-3 px-4 text-center font-mono">{units}</td>
-                      <td className="py-3 px-4 text-right font-mono">${cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">${retail.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                    </tr>
-                  );
-                })}
+                    return (
+                      <tr key={c.id} className="hover:bg-white/[0.03]">
+                        <td className="py-3 px-4 font-bold text-white">{c.name}</td>
+                        <td className="py-3 px-4 text-center font-mono">{prods.length}</td>
+                        <td className="py-3 px-4 text-center font-mono">{units}</td>
+                        <td className="py-3 px-4 text-right font-mono">${cost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                        <td className="py-3 px-4 text-right font-mono font-bold text-emerald-400">${retail.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -177,12 +185,14 @@ export const ReportsModule: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-emerald-400">Nominal / Healthy Stock</span>
-                  <span className="text-white font-mono">{inStockCount} SKUs ({((inStockCount / products.length) * 100).toFixed(0)}%)</span>
+                  <span className="text-white font-mono">
+                    {inStockCount} SKUs ({products.length > 0 ? ((inStockCount / products.length) * 100).toFixed(0) : '0'}%)
+                  </span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
                   <div
                     className="bg-emerald-500 h-full rounded-full"
-                    style={{ width: `${(inStockCount / products.length) * 100}%` }}
+                    style={{ width: `${products.length > 0 ? (inStockCount / products.length) * 100 : 0}%` }}
                   />
                 </div>
               </div>
@@ -190,12 +200,14 @@ export const ReportsModule: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-amber-400">Low Stock Warning</span>
-                  <span className="text-white font-mono">{lowStockCount} SKUs ({((lowStockCount / products.length) * 100).toFixed(0)}%)</span>
+                  <span className="text-white font-mono">
+                    {lowStockCount} SKUs ({products.length > 0 ? ((lowStockCount / products.length) * 100).toFixed(0) : '0'}%)
+                  </span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
                   <div
                     className="bg-amber-400 h-full rounded-full"
-                    style={{ width: `${(lowStockCount / products.length) * 100}%` }}
+                    style={{ width: `${products.length > 0 ? (lowStockCount / products.length) * 100 : 0}%` }}
                   />
                 </div>
               </div>
@@ -203,12 +215,14 @@ export const ReportsModule: React.FC = () => {
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-rose-400">Depleted / Out of Stock</span>
-                  <span className="text-white font-mono">{outOfStockCount} SKUs ({((outOfStockCount / products.length) * 100).toFixed(0)}%)</span>
+                  <span className="text-white font-mono">
+                    {outOfStockCount} SKUs ({products.length > 0 ? ((outOfStockCount / products.length) * 100).toFixed(0) : '0'}%)
+                  </span>
                 </div>
                 <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
                   <div
                     className="bg-rose-500 h-full rounded-full"
-                    style={{ width: `${(outOfStockCount / products.length) * 100}%` }}
+                    style={{ width: `${products.length > 0 ? (outOfStockCount / products.length) * 100 : 0}%` }}
                   />
                 </div>
               </div>

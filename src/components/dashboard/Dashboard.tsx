@@ -20,7 +20,6 @@ import {
   Layers as StaffIcon,
   Eye,
 } from 'lucide-react';
-import { MONTHLY_SALES_ANALYTICS } from '../../data/mockData';
 import { ProjectTeamSection } from '../common/ProjectTeamSection';
 
 interface DashboardProps {
@@ -33,6 +32,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
     categories,
     suppliers,
     stockTransactions,
+    invoices,
     currentUser,
     setActiveTab,
     permissions,
@@ -43,6 +43,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
 
   // Computations
   const totalProducts = products.length;
+  const totalUnits = products.reduce((acc, p) => acc + p.stock, 0);
   const totalStockValue = products.reduce((acc, p) => acc + p.stock * p.costPrice, 0);
   const totalRetailPotential = products.reduce((acc, p) => acc + p.stock * p.unitPrice, 0);
   const potentialGrossMargin = totalRetailPotential > 0
@@ -52,6 +53,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
   const lowStockItems = products.filter((p) => p.status === 'LOW_STOCK' || p.status === 'OUT_OF_STOCK');
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
   const activeSuppliersCount = suppliers.filter((s) => s.status === 'ACTIVE' || s.status === 'PREFERRED').length;
+  const preferredSuppliersCount = suppliers.filter((s) => s.status === 'PREFERRED').length;
+  const avgLeadDays = suppliers.length > 0
+    ? Math.round(suppliers.reduce((acc, s) => acc + s.leadTimeDays, 0) / suppliers.length)
+    : 0;
 
   const recentTransactions = stockTransactions.slice(0, 6);
 
@@ -69,8 +74,42 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
     };
   }).sort((a, b) => b.value - a.value);
 
-  // Chart data scaling
-  const maxRevenue = Math.max(...MONTHLY_SALES_ANALYTICS.map((d) => d[chartMetric]));
+  // Dynamic Monthly Sales Analytics computed from invoices
+  const monthlySalesAnalytics = React.useMemo(() => {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const now = new Date();
+    const buckets: { key: string; month: string; revenue: number; profit: number; volume: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      buckets.push({
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        month: monthNames[d.getMonth()],
+        revenue: 0,
+        profit: 0,
+        volume: 0,
+      });
+    }
+
+    invoices.forEach((inv) => {
+      const d = new Date(inv.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const bucket = buckets.find((b) => b.key === key);
+      if (bucket) {
+        bucket.revenue += inv.grandTotal;
+        const invCost = inv.items.reduce((sum, item) => {
+          const prod = products.find((p) => p.id === item.productId);
+          return sum + item.quantity * (prod ? prod.costPrice : item.unitPrice * 0.7);
+        }, 0);
+        bucket.profit += Math.max(inv.subtotal - inv.discountAmount - invCost, 0);
+        bucket.volume += inv.items.reduce((sum, item) => sum + item.quantity, 0);
+      }
+    });
+
+    return buckets;
+  }, [invoices, products]);
+
+  const maxRevenue = Math.max(...monthlySalesAnalytics.map((d) => d[chartMetric]), 1);
+  const totalChartRevenue = monthlySalesAnalytics.reduce((acc, d) => acc + d.revenue, 0);
 
   // Role-specific dashboard subtitle and branding
   const getDashboardMeta = () => {
@@ -181,7 +220,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
           </div>
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span className="flex items-center text-emerald-400 font-medium">
-              <ArrowUpRight className="w-4 h-4 mr-0.5" /> +14.2% MoM
+              <Package className="w-3.5 h-3.5 mr-1" /> {totalUnits} Units Total
             </span>
             <span>{categories.length} Categories</span>
           </div>
@@ -223,12 +262,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
           </div>
           <div className="text-3xl font-black text-white tracking-tight mb-2 flex items-baseline gap-2">
             <span>{lowStockItems.length}</span>
-            <span className="text-xs font-semibold text-rose-400">
-              {outOfStockCount > 0 ? `(${outOfStockCount} Out of Stock)` : 'Requires restock'}
+            <span className={`text-xs font-semibold ${lowStockItems.length > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+              {totalProducts === 0
+                ? 'No items yet'
+                : outOfStockCount > 0
+                ? `(${outOfStockCount} Out of Stock)`
+                : lowStockItems.length > 0
+                ? 'Requires restock'
+                : 'Healthy levels'}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="text-rose-400 font-medium">Reorder Triggered</span>
+            <span className={lowStockItems.length > 0 ? 'text-rose-400 font-medium' : 'text-emerald-400 font-medium'}>
+              {lowStockItems.length > 0 ? 'Reorder Triggered' : 'All Clear'}
+            </span>
             <span className="text-indigo-400 hover:underline">View SKUs →</span>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500 opacity-60" />
@@ -246,8 +293,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
             {activeSuppliersCount}
           </div>
           <div className="flex items-center justify-between text-xs text-slate-400">
-            <span className="text-emerald-400 font-medium">99.2% Fulfillment</span>
-            <span>Avg 8.4d Lead</span>
+            <span className="text-emerald-400 font-medium">
+              {suppliers.length > 0 ? `${preferredSuppliersCount} Preferred` : 'No suppliers yet'}
+            </span>
+            <span>{suppliers.length > 0 ? `Avg ${avgLeadDays}d Lead` : '—'}</span>
           </div>
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-400 opacity-60" />
         </div>
@@ -290,64 +339,73 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
             </div>
 
             {/* Interactive SVG Bar & Trend Chart */}
-            <div className="h-64 sm:h-72 w-full flex items-end gap-3 sm:gap-6 pt-4 pb-2 px-2 relative">
-              {MONTHLY_SALES_ANALYTICS.map((data, index) => {
-                const val = data[chartMetric];
-                const heightPercent = Math.max((val / maxRevenue) * 100, 15);
-                const isHovered = activeBarIndex === index;
+            {invoices.length === 0 ? (
+              <div className="h-64 sm:h-72 w-full flex flex-col items-center justify-center text-center px-4">
+                <TrendingUp className="w-10 h-10 text-slate-600 mb-3" />
+                <p className="text-sm font-semibold text-slate-300">No sales or invoice analytics recorded yet</p>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm">
+                  Sales velocity, revenue, and profit curves will automatically populate as you issue customer invoices.
+                </p>
+              </div>
+            ) : (
+              <div className="h-64 sm:h-72 w-full flex items-end gap-3 sm:gap-6 pt-4 pb-2 px-2 relative">
+                {monthlySalesAnalytics.map((data, index) => {
+                  const val = data[chartMetric];
+                  const heightPercent = val > 0 ? Math.max((val / maxRevenue) * 100, 12) : 4;
+                  const isHovered = activeBarIndex === index;
 
-                return (
-                  <div
-                    key={data.month}
-                    className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer relative"
-                    onMouseEnter={() => setActiveBarIndex(index)}
-                    onMouseLeave={() => setActiveBarIndex(null)}
-                  >
-                    {/* Tooltip on Hover */}
-                    {isHovered && (
-                      <div className="absolute -top-12 z-20 px-3 py-1.5 rounded-xl glass-modal border border-indigo-500/40 text-[11px] font-bold text-white shadow-2xl whitespace-nowrap animate-in fade-in zoom-in-95">
-                        <span className="text-indigo-400 mr-1.5">{data.month}:</span>
-                        {chartMetric === 'volume'
-                          ? `${val} units dispatched`
-                          : `$${val.toLocaleString()}`}
+                  return (
+                    <div
+                      key={data.month}
+                      className="flex-1 flex flex-col items-center h-full justify-end group cursor-pointer relative"
+                      onMouseEnter={() => setActiveBarIndex(index)}
+                      onMouseLeave={() => setActiveBarIndex(null)}
+                    >
+                      {/* Tooltip on Hover */}
+                      {isHovered && (
+                        <div className="absolute -top-12 z-20 px-3 py-1.5 rounded-xl glass-modal border border-indigo-500/40 text-[11px] font-bold text-white shadow-2xl whitespace-nowrap animate-in fade-in zoom-in-95">
+                          <span className="text-indigo-400 mr-1.5">{data.month}:</span>
+                          {chartMetric === 'volume'
+                            ? `${val} ${val === 1 ? 'unit' : 'units'} dispatched`
+                            : `$${val.toLocaleString()}`}
+                        </div>
+                      )}
+
+                      {/* Animated Bar Column */}
+                      <div className="w-full max-w-[48px] bg-slate-800/60 rounded-2xl p-1 flex flex-col justify-end h-full">
+                        <div
+                          className={`w-full rounded-xl transition-all duration-500 ${
+                            val === 0
+                              ? 'bg-slate-700/40'
+                              : isHovered
+                              ? 'bg-gradient-to-t from-indigo-500 via-indigo-400 to-cyan-300 shadow-[0_0_20px_rgba(99,102,241,0.6)]'
+                              : 'bg-gradient-to-t from-indigo-600/80 to-purple-500/90'
+                          }`}
+                          style={{ height: `${heightPercent}%` }}
+                        />
                       </div>
-                    )}
 
-                    {/* Animated Bar Column */}
-                    <div className="w-full max-w-[48px] bg-slate-800/60 rounded-2xl p-1 flex flex-col justify-end h-full">
-                      <div
-                        className={`w-full rounded-xl transition-all duration-500 ${
-                          isHovered
-                            ? 'bg-gradient-to-t from-indigo-500 via-indigo-400 to-cyan-300 shadow-[0_0_20px_rgba(99,102,241,0.6)]'
-                            : 'bg-gradient-to-t from-indigo-600/80 to-purple-500/90'
-                        }`}
-                        style={{ height: `${heightPercent}%` }}
-                      />
+                      {/* Month Label */}
+                      <span className={`text-xs mt-3 font-semibold transition-colors ${
+                        isHovered ? 'text-indigo-300' : 'text-slate-400'
+                      }`}>
+                        {data.month}
+                      </span>
                     </div>
-
-                    {/* Month Label */}
-                    <span className={`text-xs mt-3 font-semibold transition-colors ${
-                      isHovered ? 'text-indigo-300' : 'text-slate-400'
-                    }`}>
-                      {data.month}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between text-xs text-slate-400 gap-3">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full bg-indigo-500" /> Current Quarter
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-full bg-purple-500" /> Projected Trend
+                <span className="w-3 h-3 rounded-full bg-indigo-500" /> Current 6-Month Window
               </span>
             </div>
-            <div className="text-slate-300 font-semibold">
-              Nov Pace: +26.4% YoY Peak
+            <div className="text-slate-300 font-semibold font-mono">
+              6M Revenue: ${totalChartRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
             </div>
           </div>
         </div>
@@ -373,23 +431,29 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
 
             {/* Category Bars List */}
             <div className="space-y-4">
-              {categoryStats.slice(0, 5).map((cat) => (
-                <div key={cat.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-200">{cat.name}</span>
-                    <span className="font-bold text-white">
-                      ${cat.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      <span className="text-[10px] text-slate-400 ml-1">({cat.percent}%)</span>
-                    </span>
+              {categoryStats.length === 0 ? (
+                <p className="text-xs text-slate-400 text-center py-10">
+                  No categories created yet. Add categories to view asset distribution.
+                </p>
+              ) : (
+                categoryStats.slice(0, 5).map((cat) => (
+                  <div key={cat.id} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-200">{cat.name}</span>
+                      <span className="font-bold text-white">
+                        ${cat.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        <span className="text-[10px] text-slate-400 ml-1">({cat.percent}%)</span>
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-700"
+                        style={{ width: `${cat.value > 0 ? Math.max(parseFloat(cat.percent), 4) : 0}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800/80 rounded-full h-2 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-700"
-                      style={{ width: `${Math.max(parseFloat(cat.percent), 4)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -426,7 +490,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
           </div>
 
           <div className="space-y-3">
-            {recentTransactions.map((tx) => {
+            {recentTransactions.length === 0 ? (
+              <p className="text-xs text-slate-400 text-center py-8">
+                No stock movements recorded yet.
+              </p>
+            ) : (
+              recentTransactions.map((tx) => {
               const isStockIn = tx.type === 'IN' || tx.type === 'RETURN';
               return (
                 <div
@@ -473,7 +542,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ onOpenQuickStockIn }) => {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         </div>
 

@@ -486,6 +486,9 @@ export const ProductsModule: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                 className="w-full h-9 px-3 py-1.5 rounded-xl glass-input text-xs text-white bg-slate-900 truncate"
               >
+                {categories.length === 0 && (
+                  <option value="">General</option>
+                )}
                 {categories.map((c) => (
                   <option key={c.id} value={c.id} className="truncate">
                     {c.name}
@@ -501,6 +504,9 @@ export const ProductsModule: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, supplierId: e.target.value })}
                 className="w-full h-9 px-3 py-1.5 rounded-xl glass-input text-xs text-white bg-slate-900 truncate"
               >
+                {suppliers.length === 0 && (
+                  <option value="">Direct / General Supplier</option>
+                )}
                 {suppliers.map((s) => (
                   <option key={s.id} value={s.id} className="truncate">
                     {s.name} ({s.company})
@@ -621,8 +627,11 @@ export const ProductsModule: React.FC = () => {
               <select
                 value={formData.categoryId}
                 onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl glass-input text-xs text-white bg-slate-900"
+                className="w-full h-9 px-3 py-1.5 rounded-xl glass-input text-xs text-white bg-slate-900 truncate"
               >
+                {categories.length === 0 && (
+                  <option value="">General</option>
+                )}
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}

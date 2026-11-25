@@ -134,8 +134,15 @@ export const SuppliersModule: React.FC = () => {
       </div>
 
       {/* Supplier Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {suppliers.map((sup) => (
+      {suppliers.length === 0 ? (
+        <div className="p-12 text-center rounded-3xl glass-card border border-white/10 text-slate-400">
+          <Truck className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-300">No suppliers registered yet</p>
+          <p className="text-xs text-slate-500 mt-1">Register your vendors to track lead times and issue purchase orders.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {suppliers.map((sup) => (
           <div
             key={sup.id}
             className="p-6 rounded-3xl glass-card border border-white/10 flex flex-col justify-between group hover:border-purple-500/40 transition-all duration-300"
@@ -231,7 +238,8 @@ export const SuppliersModule: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Add Supplier Modal */}
       <Modal

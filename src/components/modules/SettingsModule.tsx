@@ -19,7 +19,7 @@ export const SettingsModule: React.FC = () => {
   const {
     currentUser,
     login,
-    resetDemoData,
+    clearAllData,
     products,
     stockTransactions,
     invoices,
@@ -60,10 +60,10 @@ export const SettingsModule: React.FC = () => {
 
         <button
           onClick={() => setIsResetModalOpen(true)}
-          className="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-2 shadow transition-all"
+          className="px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 text-xs font-bold flex items-center gap-2 shadow transition-all"
         >
           <RefreshCw className="w-4 h-4" />
-          <span>Restore Seed Data</span>
+          <span>Clear All Data</span>
         </button>
       </div>
 
@@ -193,17 +193,17 @@ export const SettingsModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Reset Confirmation Modal */}
+      {/* Clear Confirmation Modal */}
       <Modal
         isOpen={isResetModalOpen}
         onClose={() => setIsResetModalOpen(false)}
-        title="Restore Default Demo Seed Data"
-        subtitle="Reset inventory, POs, invoices, and audit logs"
+        title="Clear All Inventory Data"
+        subtitle="Remove all products, categories, suppliers, orders, invoices, and logs"
         maxWidth="sm"
       >
         <div className="space-y-4">
           <p className="text-xs text-slate-300 leading-relaxed">
-            This will purge your current browser session storage and reload all high-value demo inventory products, categories, suppliers, and purchase orders.
+            This will permanently clear all inventory products, categories, suppliers, purchase orders, invoices, and transaction logs from your session storage while preserving your role accounts and Project Team Members.
           </p>
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
             <button
@@ -214,12 +214,12 @@ export const SettingsModule: React.FC = () => {
             </button>
             <button
               onClick={() => {
-                resetDemoData();
+                clearAllData();
                 setIsResetModalOpen(false);
               }}
-              className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-xs font-bold text-white shadow-lg"
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white shadow-lg"
             >
-              Confirm Restore
+              Confirm Clear
             </button>
           </div>
         </div>

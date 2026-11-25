@@ -17,14 +17,14 @@ import {
 } from '../types';
 import {
   MOCK_USERS,
-  MOCK_CATEGORIES,
-  MOCK_SUPPLIERS,
-  MOCK_PRODUCTS,
-  MOCK_STOCK_TRANSACTIONS,
-  MOCK_PURCHASE_ORDERS,
-  MOCK_INVOICES,
-  MOCK_NOTIFICATIONS,
-  MOCK_ACTIVITIES,
+  INITIAL_CATEGORIES,
+  INITIAL_SUPPLIERS,
+  INITIAL_PRODUCTS,
+  INITIAL_STOCK_TRANSACTIONS,
+  INITIAL_PURCHASE_ORDERS,
+  INITIAL_INVOICES,
+  INITIAL_NOTIFICATIONS,
+  INITIAL_ACTIVITIES,
   ROLE_PERMISSIONS,
 } from '../data/mockData';
 
@@ -88,7 +88,7 @@ interface InventoryContextType {
   
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
-  resetDemoData: () => void;
+  clearAllData: () => void;
   
   // Toast notifications
   toasts: ToastMessage[];
@@ -100,15 +100,32 @@ const InventoryContext = createContext<InventoryContextType | undefined>(undefin
 
 const STORAGE_KEYS = {
   USER: 'aurastock_user',
-  PRODUCTS: 'aurastock_products',
-  CATEGORIES: 'aurastock_categories',
-  SUPPLIERS: 'aurastock_suppliers',
-  TRANSACTIONS: 'aurastock_transactions',
-  POS: 'aurastock_pos',
-  INVOICES: 'aurastock_invoices',
-  NOTIFICATIONS: 'aurastock_notifications',
-  ACTIVITIES: 'aurastock_activities',
+  PRODUCTS: 'aurastock_v2_products',
+  CATEGORIES: 'aurastock_v2_categories',
+  SUPPLIERS: 'aurastock_v2_suppliers',
+  TRANSACTIONS: 'aurastock_v2_transactions',
+  POS: 'aurastock_v2_pos',
+  INVOICES: 'aurastock_v2_invoices',
+  NOTIFICATIONS: 'aurastock_v2_notifications',
+  ACTIVITIES: 'aurastock_v2_activities',
 };
+
+// Purge legacy seeded mock keys if present from previous sessions
+const LEGACY_KEYS = [
+  'aurastock_products',
+  'aurastock_categories',
+  'aurastock_suppliers',
+  'aurastock_transactions',
+  'aurastock_pos',
+  'aurastock_invoices',
+  'aurastock_notifications',
+  'aurastock_activities',
+];
+try {
+  LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
+} catch {
+  // Ignore storage access errors
+}
 
 export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Auth state - default logged in as admin for immediate usability or from localStorage
@@ -126,76 +143,76 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [globalSearch, setGlobalSearch] = useState<string>('');
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  // Core Data States
+  // Core Data States - start empty by default
   const [products, setProducts] = useState<Product[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      return saved ? JSON.parse(saved) : MOCK_PRODUCTS;
+      return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
     } catch {
-      return MOCK_PRODUCTS;
+      return INITIAL_PRODUCTS;
     }
   });
 
   const [categories, setCategories] = useState<Category[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-      return saved ? JSON.parse(saved) : MOCK_CATEGORIES;
+      return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
     } catch {
-      return MOCK_CATEGORIES;
+      return INITIAL_CATEGORIES;
     }
   });
 
   const [suppliers, setSuppliers] = useState<Supplier[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.SUPPLIERS);
-      return saved ? JSON.parse(saved) : MOCK_SUPPLIERS;
+      return saved ? JSON.parse(saved) : INITIAL_SUPPLIERS;
     } catch {
-      return MOCK_SUPPLIERS;
+      return INITIAL_SUPPLIERS;
     }
   });
 
   const [stockTransactions, setStockTransactions] = useState<StockTransaction[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.TRANSACTIONS);
-      return saved ? JSON.parse(saved) : MOCK_STOCK_TRANSACTIONS;
+      return saved ? JSON.parse(saved) : INITIAL_STOCK_TRANSACTIONS;
     } catch {
-      return MOCK_STOCK_TRANSACTIONS;
+      return INITIAL_STOCK_TRANSACTIONS;
     }
   });
 
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.POS);
-      return saved ? JSON.parse(saved) : MOCK_PURCHASE_ORDERS;
+      return saved ? JSON.parse(saved) : INITIAL_PURCHASE_ORDERS;
     } catch {
-      return MOCK_PURCHASE_ORDERS;
+      return INITIAL_PURCHASE_ORDERS;
     }
   });
 
   const [invoices, setInvoices] = useState<Invoice[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.INVOICES);
-      return saved ? JSON.parse(saved) : MOCK_INVOICES;
+      return saved ? JSON.parse(saved) : INITIAL_INVOICES;
     } catch {
-      return MOCK_INVOICES;
+      return INITIAL_INVOICES;
     }
   });
 
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-      return saved ? JSON.parse(saved) : MOCK_NOTIFICATIONS;
+      return saved ? JSON.parse(saved) : INITIAL_NOTIFICATIONS;
     } catch {
-      return MOCK_NOTIFICATIONS;
+      return INITIAL_NOTIFICATIONS;
     }
   });
 
   const [activities, setActivities] = useState<ActivityLog[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
-      return saved ? JSON.parse(saved) : MOCK_ACTIVITIES;
+      return saved ? JSON.parse(saved) : INITIAL_ACTIVITIES;
     } catch {
-      return MOCK_ACTIVITIES;
+      return INITIAL_ACTIVITIES;
     }
   });
 
@@ -653,19 +670,17 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
     showToast('info', 'Notifications Cleared', 'All notifications marked as read.');
   };
 
-  // Reset demo data
-  const resetDemoData = () => {
-    localStorage.clear();
-    setProducts(MOCK_PRODUCTS);
-    setCategories(MOCK_CATEGORIES);
-    setSuppliers(MOCK_SUPPLIERS);
-    setStockTransactions(MOCK_STOCK_TRANSACTIONS);
-    setPurchaseOrders(MOCK_PURCHASE_ORDERS);
-    setInvoices(MOCK_INVOICES);
-    setNotifications(MOCK_NOTIFICATIONS);
-    setActivities(MOCK_ACTIVITIES);
-    setCurrentUser(MOCK_USERS[0]);
-    showToast('success', 'System Reset', 'All enterprise mock data restored to pristine state.');
+  // Clear all inventory data
+  const clearAllData = () => {
+    setProducts([]);
+    setCategories([]);
+    setSuppliers([]);
+    setStockTransactions([]);
+    setPurchaseOrders([]);
+    setInvoices([]);
+    setNotifications([]);
+    setActivities([]);
+    showToast('info', 'Data Cleared', 'All inventory records, orders, and transactions have been cleared.');
   };
 
   return (
@@ -704,7 +719,7 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
         updateInvoiceStatus,
         markNotificationRead,
         markAllNotificationsRead,
-        resetDemoData,
+        clearAllData,
         toasts,
         showToast,
         removeToast,
